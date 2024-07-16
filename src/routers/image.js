@@ -15,24 +15,26 @@ router.use(express.json());
 const { pvk, pubKeys } = require("../data/secrets.json");
 
 function checkForKey(req, res, next) {
-    if (pvk.includes(req.headers["auth-key"])) {
-      next();
-    } else if (Object.keys(pubKeys).includes(req.headers["auth-key"])) {
-      const keyDetails = pubKeys[req.headers["auth-key"]];
-      fs.appendFileSync(
-        path.join(__dirname, "../data/logs/pubKeys.log"),
-        `${req.headers["auth-key"]}: ${keyDetails.ip}, ${keyDetails.user} - ${req.method} - ${req.url} - ${new Date().toLocaleString()}\n`
-      );
-      next();
+  if (pvk.includes(req.headers["auth-key"])) {
+    next();
+  } else if (Object.keys(pubKeys).includes(req.headers["auth-key"])) {
+    const keyDetails = pubKeys[req.headers["auth-key"]];
+    fs.appendFileSync(
+      path.join(__dirname, "../data/logs/pubKeys.log"),
+      `${req.headers["auth-key"]}: ${keyDetails.ip}, ${keyDetails.user} - ${
+        req.method
+      } - ${req.url} - ${new Date().toLocaleString()}\n`
+    );
+    next();
+  } else {
+    if (!req.headers["auth-key"]) {
+      res.status(401).send(errors["401"]);
     } else {
-      if (!req.headers["auth-key"]) {
-        res.status(401).send(errors["401"]);
-      } else {
-        res.status(403).send(errors["403"]);
-      }
-      return;
+      res.status(403).send(errors["403"]);
     }
+    return;
   }
+}
 
 function generateID(input) {
   let seed = input;
@@ -104,7 +106,7 @@ router.get("/get/:id", (req, res) => {
     if (err) {
       // Handle error, but don't show internal details to the client
       console.error(err); // Log error details for debugging
-      res.status(500).send("An error occurred"); // Send a generic error message
+      res.status(500).send(errors[500]); // Send a generic error message
     }
   });
 });

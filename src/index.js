@@ -4,8 +4,10 @@ const path = require('path');
 
 // Routers
 const imageRouter = require('./routers/image');
+const apiRouter = require('./routers/api');
 
 app.use('/api/image', imageRouter);
+//app.use('/api', apiRouter); //! Disabled while I decide if I want to work on it (contains registration)
 
 app.get('/', (req, res) => {
   res.send('Hello World');
