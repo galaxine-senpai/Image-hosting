@@ -11,10 +11,11 @@ app.get('/', (req, res) => {
   res.send('Hello World');
 });
 
-//upload but for browsers so it will display html so they can upload that way
+/* Disabled since this doesn't have the required funny stuff to work and would be a security risk
 app.get("/upload", (req, res) => {
     res.sendFile(path.join(__dirname, "/html/upload.html"));
 });
+*/
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
