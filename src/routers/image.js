@@ -10,18 +10,14 @@ const fs = require("fs");
 const { errors, nonerror } = require("../data/errors.json");
 const path = require("path");
 
-//? Express stuff
 router.use(express.json());
 
-//? Config stuff
 const { pvk, pubKeys } = require("../data/secrets.json");
 
 function checkForKey(req, res, next) {
-    // Assuming pvk is a string and pubKeys is an object loaded from your secrets.json
     if (pvk.includes(req.headers["auth-key"])) {
       next();
     } else if (Object.keys(pubKeys).includes(req.headers["auth-key"])) {
-      // Correctly access the key's properties for logging
       const keyDetails = pubKeys[req.headers["auth-key"]];
       fs.appendFileSync(
         path.join(__dirname, "../data/logs/pubKeys.log"),
@@ -29,20 +25,16 @@ function checkForKey(req, res, next) {
       );
       next();
     } else {
-      // Handle unauthorized or forbidden responses
       if (!req.headers["auth-key"]) {
-        // If the key is not present
         res.status(401).send(errors["401"]);
       } else {
-        // If the key is invalid
         res.status(403).send(errors["403"]);
       }
-      return; // Ensure the function exits here to prevent further execution
+      return;
     }
   }
 
 function generateID(input) {
-  // Get the input and use that as the seed
   let seed = input;
   let id = "";
   let characters =
@@ -76,7 +68,6 @@ function generateID(input) {
   return id;
 }
 
-//? Multer stuff
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
   if (!allowedTypes.includes(file.mimetype)) {
@@ -89,12 +80,10 @@ const fileFilter = (req, file, cb) => {
 };
 
 var storage = multer.diskStorage({
-  // Set the destination
   destination: function (req, file, cb) {
     cb(null, path.join(__dirname, "../data/uploads"));
   },
 
-  // Set the filename with the random ID
   filename: function (req, file, cb) {
     cb(null, generateID(file.originalname) + "." + file.mimetype.split("/")[1]); // "randid.ext"
   },
